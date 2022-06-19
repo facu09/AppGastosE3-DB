@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// Modelo Schema para mi DB de Gastos
+// Visiones de Contexto
+// VC: Un Gasto es de 1 solo tipo
+// VC: Un Gasto es producido por 1 Usuario
+
+model Gastos {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  nomGasto      String   @db.VarChar(255)
+  importe       Int
+  fechaGasto    DateTime 
+  tipoGasto     TipoGasto @relation(fields: [tipoGastoId], references: [id])
+  tipoGastoId   Int
+  user          User  @relation(fields: [userId], references: [id])
+  userId        Int
+}
+
+model TipoGasto {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  nomTipoGasto  String   @db.VarChar(20)
+  gastos        Gastos[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(USER)
+  gastos    Gastos[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
