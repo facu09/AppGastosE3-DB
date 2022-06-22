@@ -1,13 +1,14 @@
 const express = require("express");
 const cnsController = require("../controllers/consultas");
+const authorizationForAdmin = require("../middlewares/authorization").authorizationForAdmin;
 const router = express.Router();
+
 
 // Establecido por defecto x el app.js:  
 //  const usersRouter = require("./routes/gastos") 
 
-
 //api/consultas
-router.get("/allGastos", cnsController.getAllGastos);
+router.get("/allGastos", authorizationForAdmin, cnsController.getAllGastos);
 
 router.get("/allGastosOrderAscImporte", cnsController.getAllGastosOrderAscByImpote);
 

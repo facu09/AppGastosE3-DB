@@ -1,4 +1,4 @@
-const prisma = require("../utils/client");
+const prisma = require("../utils/clientPrismaPosgre");
 const pool = require("../utils/clientPostgreSQL")
 
 

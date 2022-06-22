@@ -4,7 +4,7 @@
 // module.exports = prisma;
 
 
-//Del repo de Roberto Baca (https://github.com/roberbaca/ExpensesApp/blob/main/utils/client.js)
+//Del repo de Roberto Baca (https://github.com/roberbaca/ExpensesApp/blob/main/utils/clientPrismaPosgre.js)
 
 const { PrismaClient } = require("@prisma/client");
 

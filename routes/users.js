@@ -5,6 +5,7 @@ const router = express.Router();
 // Establecido por defecto x el app.js:  
 //  const usersRouter = require("./routes/users") 
 //  /api/users
+// Esta ruta queda para los Administradores para crear usuario Adhoc
 router.post("/", usersController.createUser);
 
 //  /api/users/
@@ -28,8 +29,6 @@ router.delete("/email/:email", usersController.deleteByEmail)
 
 
 // otras rutas ..
-
-
 
 
 module.exports = router;

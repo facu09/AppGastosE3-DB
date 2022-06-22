@@ -2,7 +2,7 @@ const express = require("express");
 const tiposGastosController = require("../controllers/tiposGastos");
 const router = express.Router();
 
-console.log("antes de entrar al route /api/tipos")
+console.log("antes de entrar al route /api/tiposGastos")
 
 // Establecido por defecto x el app.js:  
 //  const usersRouter = require("./routes/tiposGastos") 

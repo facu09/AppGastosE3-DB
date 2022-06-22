@@ -3,6 +3,8 @@ const User = require("../models/user");  // este es el que impacta y conoce la D
 
 //Armo el CRUD de Usuarios (Create, Read, Update, Delete )
 
+// Lo va a usar solo el role= "Admin" para crear usuario on demanda "AdHoc"
+//    y sus gastos
 const createUser = async (req, res, next) => {
     // console.log(req.body);
     // res.send(req.body) //esto tira json del json que venga en el body
