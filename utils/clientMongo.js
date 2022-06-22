@@ -15,11 +15,11 @@ const connectMongoDB = async () => {
     }
 }
 
-const getDB = () => {
+const getDb = () => {
     if (db) {
         return db;
     }
     throw new Error ("MongoDB not initialized")
 };
 
-module.exports = { connectMongoDB , getDB} 
+module.exports = { connectMongoDB , getDb} 
