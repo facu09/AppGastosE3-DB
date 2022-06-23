@@ -11,25 +11,29 @@ const userMongo = require("../models/auth") // este es el que impacta y conoce l
 
 //Es cuando el usuario se da de Alta
 const registerUser = async (req, res, next) => {
+    console.log("ARRANCA DE NUEVO ===========> ")
+    // asum not insert into DB PostgreSQL and MongoDB
+    let lbInsertOKinPostgre = false
+    let lbInsertOKinMongo = false
+    //"firstName": "Roberto Siete",
+    //"lastName": "García",
+    //"email": "robero8gmail.com",
+    //"password": "pass12345"
+    const userBody = req.body;
+
     try {
-        const userBody = req.body;
-        if (!thereIsPassword(userBody.password)) {
-            res.status(400).json({ message: "Password can't be empty."})
-            return;
-        }
-        if (!validLengthPassword(userBody.password)) {
-            res.status(400).json({ message: "Password must have at least 8 caracters."})
-            return;
-        }
-        if (await searchUserByEmail(userBody.email)) {
-            res.status(400).json({ message: "Email already exist."})
+        //Validation of fields of Post
+        const messageValid = await MessageNotPassValidation(userBody)
+        console.log ("mensaje devuelvo x validation:",  messageValid)
+        if (messageValid) {
+            res.status(400).json({ message: messageValid})
             return
         }
 
         // Si llego acá: --> Hashe Password y Guardo ---------
         const hash = await bcrypt.hash(userBody.password, 10);
         
-        //1ºGuardo en Prisma Heroku PostgreSQL -------
+        //1º Guardo en Prisma Heroku PostgreSQL (Redundancy Model) ----
         let newUser = new User(
             userBody.email,
             userBody.lastName + ", " + userBody.firstName,
@@ -40,25 +44,43 @@ const registerUser = async (req, res, next) => {
             // Salvando la nueva entidad
             newUser2 = await newUser.save();
             // res.send(newUser2);  // lo comento para que siga creando en Mongo
-        } catch (err) {
-            res.statusCode = 500;
-            res.send(err);
+            console.log ("Si llego acá:--> grabo bien en DB.Heroku.PostgreSQL")
+            lbInsertOKinPostgre = true
+        } catch (error) {
+            console.log("entro al Catch del Controllers.auth.registerUser().InsertPostgreSQL")
+            // res.statusCode = 500;
+            // res.send(err);
+            res.status(500).json({ message: error.message + ". Error en Insert de Heroku.PostgreSQL --> aborta Inserts" });
+            return;
         }
         //Fin 1ºGuardo en Prisma Heroku PostgreSQL -------
 
-        //Guardo en MongoDB Entidad Login MultiPlataforma
+        //2º Guardo en MongoDB Entidad Login Principal 
         newUser = {
             firstName: userBody.firstName,
             lastName: userBody.lastName,
             email: userBody.email,
-            password: hash
+            password: hash,
+            role: "USER",
         };
         // creo el usuario en las 2 bases
         await userMongo.createUser(newUser);
         res.json("Created user OK en Heroku.PostgreSQL and in Atlas.MongoDB. User email:" + userBody.email + "." )
 
+        console.log("Si llegó acá: -->  Grabó bien en las 2 DB")
+        lbInsertOKinMongo = true
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.log("entro al Catch del Controllers.auth.registerUser.DelInsertDelMongo()")
+        res.status(500).json({ message: error.message + ". Proced with RollBack LAST INSERT into Heroku.PostgreSQL.User" });
+        //Si se insertó bien en Heroku y no en Atlas
+        // console.log("despues del msj erro de que no mongueó" +  lbInsertOKinPostgre + " " + lbInsertOKinMongo )
+        if (lbInsertOKinPostgre && !lbInsertOKinMongo) {
+            //Borro en Heroku.PostgreSQL
+            console.log("Entro al ifff eseeee")
+            User.deleteByEmail(userBody.email)
+            console.log("RollBackeo y Borro el usuario de Heroku.PostgreSQL.Users")
+        }
         return;
     } 
 }
@@ -82,6 +104,12 @@ const logoutUser = async (req, res, next) => {
 }
 
 // Validaciones --------------------------------------
+const thereIsFirstName = (firstName) => {
+    return firstName;
+};
+const thereIsEmail = (email) => {
+    return email;
+};
 const thereIsPassword = (password) => {
   return password;
 };
@@ -96,6 +124,38 @@ const searchUserByEmail = async (email) => {
     const user = await User.findByEmail(email);
     return user;
 };
+
+
+const MessageNotPassValidation = async (userBody) => {
+    //return Message of Error of validacion
+    //If pass validation --> return null 
+    
+    //Assum there isn't Error Validatins Message
+    MakeMessageNotPassValidation = null
+    
+    if (!userBody.firstName) {
+        return "First Name can't be empty."
+    };
+    if (!userBody.lastName) {
+        return "Last Name can't be empty.";
+    };
+    if (!userBody.email) {
+        return "Email can't be empty.";
+    };
+    if (!thereIsPassword(userBody.password)) {
+        return "Password can't be empty.";
+    };
+    if (!validLengthPassword(userBody.password)) {
+        return "Password must have at least 8 caracters."
+        ;
+    };
+    if  (await searchUserByEmail(userBody.email)) {
+        console.log ("Email repido cheeeee")
+        return "Email already exist.";
+    };
+};
+
+// Fin Validaciones ----------------------------------------
 
 
 //EXPORTO EL CRUD (Create, Read, Update, Delete )

@@ -26,8 +26,10 @@ class User {
       console.log (this)
       return this;
     
-    } catch (err) {
-      return err;
+    } catch (error) {
+      console.log("entro catch del models.user.save()")
+      throw new Error(error);
+      return;
     }
   }
 
@@ -44,6 +46,7 @@ class User {
     } catch (error) {
         console.log(error);
         throw new Error(error);
+        return;
     }   
   }
 
@@ -60,6 +63,7 @@ class User {
     } catch (error) {
         console.log(error);
         throw new Error(error);
+        return;
     }   
   }
 
@@ -70,6 +74,7 @@ class User {
     } catch (error) {
       console.log(error);
       throw new Error(error);
+      return;
     }   
   }
 
@@ -91,6 +96,7 @@ class User {
     } catch (error) {
       console.log(error);
       throw new Error(error);
+      return;
     }   
   }
 
@@ -106,6 +112,7 @@ class User {
     } catch (error) {
       console.log(error);
       throw new Error(error);
+      return;
     }   
   }
 

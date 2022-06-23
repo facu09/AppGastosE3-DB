@@ -126,6 +126,8 @@ const updateByEmail = async (req, res, next) => {
 }
 
 const deleteByEmail = async(req, res, next) => {
+    // FALTA HACER QUE BORRE EN EL DEL HEROKU
+
     // console.log("--------> ", req.params.email )
     if (req.params.email === "") {
         res.statusCode = 400;
