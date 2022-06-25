@@ -1,8 +1,7 @@
 const jwt = require("jsonwebtoken");
-const { JsonWebTokenError } = require("jsonwebtoken"); //???
 
 //midleware Authorization
-const authorizationForAdmin = ( req, res, next) => {
+const authorizationForAdmin = async ( req, res, next) => {
     // me fijo si se autoriza o no
     console.log (req.headers.authorization)
     if (!req.headers.authorization) {
@@ -10,21 +9,29 @@ const authorizationForAdmin = ( req, res, next) => {
     }
     const token = req.headers.authorization.split(" ")[1]
     console.log (token)
-    //ahora valido el token
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY, (err, payload) => {
-        if (err) {
-            res.send(403, "Error while validation token")
+    try{
+    
+        //ahora valido el token
+        const data = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
+        console.log("token recuperado en verify", data)
+        if (data.role !== "ADMIN") {
+            res.status(403).json({ message: "Not authorized: must be 'ADMIN'" });
+            return;
         }
-        console.log (JSON.stringify(payload));
-        console.log ("El Role es:", payload.role);
-        
-        if (payload.role !== "admin") {
-            res.send(403, "User is not authorized")
-        }
-        // si llega acá es porque hay token y es role "admin"
-        next() // autoriza
-    });
+        // si es ADMIN
+        // agrego al req. un objeto user para que quede y pueda filtrar en la consulta
+        req.user = {
+            id: data.id,
+            email: data.email,
+            role: data.role,
+        };
+        console.log("Pasó la autorizacion for Admin: ==> el token es de ADMIN User role")
+        return next() // autoriza
 
+    } catch (error) {
+        res.status(403).json({ message: "Error while validation token", error: error });
+        return;
+    }
 };
 
 module.exports = { authorizationForAdmin };

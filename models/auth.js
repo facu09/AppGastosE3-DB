@@ -27,4 +27,40 @@ const findUserByEmail = async (email) => {
     }
   };
   
-  module.exports = { createUser, findUserByEmail };
+  const deleteUserByEmail = async (email) => {
+    try {
+      const db = getDb();
+      const result = await db
+        .collection(USERS_COLLECTION)
+        .deleteOne({ email: email });
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  const updateByEmail = async (email, firstName, lastName, hush, role) => {
+    try {
+      const db = getDb();
+      const updatedUser = await db.collection(USERS_COLLECTION).updateOne(
+        { email : email},
+        { $set: {
+          firstName: firstName,
+          lastName: lastName, 
+          password: hush,
+          role: role,
+        } },
+        { upsert: true}
+      )
+      // console.log (updatedUser)
+      return updatedUser
+
+    } catch (error) {
+      console.log(error);
+      throw new Error(error);
+      return;
+    }   
+  }
+
+
+  module.exports = { createUser, findUserByEmail, deleteUserByEmail, updateByEmail };

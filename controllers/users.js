@@ -1,5 +1,10 @@
 //Controlador Users - Independiente de con que DB esté hecho
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 const User = require("../models/user");  // este es el que impacta y conoce la DB
+const Auth = require("../models/auth")
+
 
 //Armo el CRUD de Usuarios (Create, Read, Update, Delete )
 
@@ -89,11 +94,13 @@ const findUserByEmail = async (req, res, next) => {
 // ... su ruta fue:  "// /api/users/email/roberto5@gmail.com"
 const updateByEmail = async (req, res, next) => {
     //PATH PARAM id es parte de la ruta lo puedo acceder como parte del req
-    const name = req.body.name;
-    const password = req.body.password
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName;
+    const password = req.body.password;
     const role = req.body.role;
+    const name = lastName + ", " + firstName
     console.log("---> entro al updataByEmail");
-    console.log("email: " , req.params.email, ", nombre: ", name, ", password; " , password, " , role: " , role)
+    console.log("email: " , req.params.email, ", nombre: ", name, ", password: " , password, " , role: " , role)
 
     if (req.params.email === "") {
         res.statusCode = 400;
@@ -120,15 +127,44 @@ const updateByEmail = async (req, res, next) => {
         return;
     };
 
-    const userUpdated = await User.uptadeByEmail(req.params.email, name, password, role );
+    //Antes de Apdatear hasheo la password
+    // Si llego acá: --> Hashe Password y Guardo ---------
+    const hash = await bcrypt.hash(password, 10);
+    console.log ("Haseó la password: " + hash)
 
-    res.send(userUpdated);
+    try {
+    const userUpdated1 = await User.uptadeByEmail(req.params.email, name, hash, role );
+
+        if (userUpdated1) {
+            console.log ("Si llego acá Updateó bien User over PostgreSQL.User: email: '" + req.params.email + "'");
+            
+            //2do Updateo sobre Mongo
+            const userUpdated2 = await Auth.updateByEmail(req.params.email, firstName, lastName, hash, role)
+
+            if (userUpdated2) {
+                console.log ("Si llego acá Updateó bien User over Mongo.User: email: '" + req.params.email + "'");
+                res.json("Updated user OK in Heroku.PostgreSQL.User and in Atlas.MongoDB.User by email: '" + req.params.email + "'." )
+
+            } else {
+                res.status(500).json({ message: error.message + ". Didn't Update over MongoDB.User. Call and tell the Admin Role that Update has not done properly for email '" + req.params.email + "' over MongoDB.User" });
+            }
+        } else {
+            res.status(500).json({ message: error.message + ". Call and tell the Admin Rol that Update has not done properly for email '" + req.params.email + "' perhaps in both DB or only over Mongo." });  
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message + ". Call and tell the Admin Rol that Deleted has not done properly for email '" + req.params.email + "' perhaps in both DB or only over Mongo." });
+    }
+
+    
 }
 
-const deleteByEmail = async(req, res, next) => {
-    // FALTA HACER QUE BORRE EN EL DEL HEROKU
 
+
+const deleteByEmail = async(req, res, next) => {
+//1ero Borro en Heroku.PostgreSQL y 2do en Atalas.Mongo.
+   
     // console.log("--------> ", req.params.email )
+    //Validaciones Previas 
     if (req.params.email === "") {
         res.statusCode = 400;
         res.send("Eamil cannot be empty");
@@ -141,8 +177,26 @@ const deleteByEmail = async(req, res, next) => {
         res.send("User with this eamil dosen't exist.");
         return;
     };
-    const userDeleted = await User.deleteByEmail(req.params.email);
-    res.send(userDeleted);  
+
+    try {
+        //1ero Borro sobre PostgreSQL
+        const userDeleted1 = await User.deleteByEmail(req.params.email);
+        if (userDeleted1) {
+            console.log ("Si llego acá borró bien User over PostgreSQL.User ")
+            //2Do Borro sobre MongoDB
+            const userDeleted2 = await Auth.deleteUserByEmail(req.params.email);
+            if (userDeleted2) {
+                console.log("Sí llego acá borró bien User over MongoDB.User")
+                res.json("Deleted user OK in Heroku.PostgreSQL.User and in Atlas.MongoDB.User by email: '" + req.params.email + "'." )
+            } else {
+                res.status(500).json({ message: error.message + ". Didn't delete over MongoDB.User. Call and tell the Admin Role that Deleted has not done properly for email '" + req.params.email + "' over MongoDB.User" });
+            }
+        } else {
+            res.status(500).json({ message: error.message + ". Call and tell the Admin Rol that Deleted has not done properly for email '" + req.params.email + "' over PostgreSQL.User"}); 
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message + ". Call and tell the Admin Rol that Deleted has not done properly for email '" + req.params.email + "'" });    
+    }            
 }
 
 
