@@ -1,6 +1,7 @@
 const express = require("express");
 const cnsController = require("../controllers/consultas");
 const authorizationForAdmin = require("../middlewares/authorization").authorizationForAdmin;
+const auth = require("../middlewares/authorization")
 const router = express.Router();
 
 
@@ -8,26 +9,26 @@ const router = express.Router();
 //  const usersRouter = require("./routes/gastos") 
 
 //api/consultas
-router.get("/allGastos", authorizationForAdmin, cnsController.getAllGastos);
+router.get("/allGastos", auth.authorizationForAllUser, cnsController.getAllGastos);
 
-router.get("/allGastosOrderAscImporte", cnsController.getAllGastosOrderAscByImpote);
+router.get("/allGastosOrderAscImporte", auth.authorizationForAllUser, cnsController.getAllGastosOrderAscByImpote);
 
-router.get("/allGastosOrderAscFecha", cnsController.getAllGastosOrderAscByFecha);
+router.get("/allGastosOrderAscFecha", auth.authorizationForAllUser, cnsController.getAllGastosOrderAscByFecha);
 
-router.get("/promedioDeAllGastos", cnsController.getPromedioDeAllGastos);
+router.get("/promedioDeAllGastos", auth.authorizationForAllUser, cnsController.getPromedioDeAllGastos);
 
-router.get("/sumaDeAllGastos", cnsController.getSumaDeAllGastos);
+router.get("/sumaDeAllGastos", auth.authorizationForAllUser, cnsController.getSumaDeAllGastos);
 
-router.get("/sumaDeGastosPorUsuario", cnsController.getSumaDeGastosPorUsuario);
+router.get("/sumaDeGastosPorUsuario", auth.authorizationForAllUser, cnsController.getSumaDeGastosPorUsuario);
 
-router.get("/sumaDeGastosPorTipoGasto", cnsController.getSumaDeGastosPorTipoGasto);
+router.get("/sumaDeGastosPorTipoGasto", auth.authorizationForAllUser, cnsController.getSumaDeGastosPorTipoGasto);
 
-router.get("/sumaDeGastosPorTipoGastoSql", cnsController.sumaDeGastosPorTipoGastoSql
+router.get("/sumaDeGastosPorTipoGastoSql", auth.authorizationForAllUser,cnsController.sumaDeGastosPorTipoGastoSql
 );
 
-router.get("/mayorDeAllGastos", cnsController.getMayorDeAllGastos);
+router.get("/mayorDeAllGastos", auth.authorizationForAllUser, cnsController.getMayorDeAllGastos);
 
-router.get("/menorDeAllGastos", cnsController.getMenorDeAllGastos);
+router.get("/menorDeAllGastos", auth.authorizationForAllUser, cnsController.getMenorDeAllGastos);
 
 
 

@@ -2,64 +2,71 @@
 const Cns = require("../models/consulta");  // este es el que impacta y conoce la DB
 const User = require("../models/user"); // para buscar si existe el email para algunas consultas
 
-
+//El role ADMIN puede consultar todos los gastos de todo o puedo consultar un usuario por req.query.email.
+//El role USER solo puede consutlar sus gastos, y se desestima el req.query.email
 const getAllGastos = async (req, res, next) => {
-    console.log ("Del consultas.controllers: ", req.query.email)
-    if (req.query.email) {
+    console.log ("Del consultas.controllers, y el req.query.email: ", req.query.email)
+    //Si es el ADMIN consultando los gastos de 1 usuario
+    if (req.query.email && req.user.role === "ADMIN" ) {
         if (await userDosentExist(req.query.email)) { 
             res.statusCode = 400;
             res.send("User with this eamil dosen't exist.");
             return;
         // Si el mail existe    
         } else {
-            const gastosDelUs = await Cns.getAllGastos(req.query.email);
+            //Es el ADMIN que quiere consutlar los gastos de un usuario, le paso parametro del mail para que filtre por ese email 
+            const gastosDelUs = await Cns.getAllGastos(req.user, req.query.email);
             res.send(gastosDelUs)
         }
-    //sino tiene mail --> trae todos los gastos
+    //sino tiene mail como parametro req.query --> trae todos los gastos s/ el role del token
     } else{
-        const allGastos = await Cns.getAllGastos();
+        //Aca puede ser el ADMIN o un USER
+        //Si es role ADMIN: -> Tree todos los gastos de todos lo usars.
+        //Si es role USER: -> Trae solo los gastos de ese usuario.
+        const allGastos = await Cns.getAllGastos(req.user);
         res.send(allGastos)
     }
 }
     
 const getAllGastosOrderAscByImpote = async (req, res, next) => {
-    const allGastosOrdered = await Cns.getAllGastosOrderAscByImpote();
+    const allGastosOrdered = await Cns.getAllGastosOrderAscByImpote(req.user);
    
     res.send(allGastosOrdered)
 }
+
 const getAllGastosOrderAscByFecha = async (req, res, next) => {
-    const allGastosOrdered = await Cns.getAllGastosOrderAscByFecha();
+    const allGastosOrdered = await Cns.getAllGastosOrderAscByFecha(req.user);
    
     res.send(allGastosOrdered)
 }
 const getPromedioDeAllGastos = async (req, res, next) => {
-    const PromedioOfAll = await Cns.getPromedioDeAllGastos();
+    const PromedioOfAll = await Cns.getPromedioDeAllGastos(req.user);
     res.status(200).send(PromedioOfAll)
 }
 const getSumaDeAllGastos = async (req, res, next) => {
-    const SumaGastos = await Cns.getSumaDeAllGastos();
+    const SumaGastos = await Cns.getSumaDeAllGastos(req.user);
     res.status(200).send(SumaGastos)
 }
 const getSumaDeGastosPorUsuario = async (req, res, next) => {
-    const SumaGastosProUs = await Cns.getSumaDeGastosPorUsuario();
+    const SumaGastosProUs = await Cns.getSumaDeGastosPorUsuario(req.user);
     res.status(200).send(SumaGastosProUs)
 }
 const getSumaDeGastosPorTipoGasto = async (req, res, next) => {
-    const SumaGastosProT = await Cns.getSumaDeGastosPorTipoGasto();
+    const SumaGastosProT = await Cns.getSumaDeGastosPorTipoGasto(req.user);
     res.status(200).send(SumaGastosProT)
 }
 const sumaDeGastosPorTipoGastoSql = async (req, res, next) => {
-    const SumaGastosProT = await Cns.getSumaDeGastosPorTipoGastoSql();
+    const SumaGastosProT = await Cns.getSumaDeGastosPorTipoGastoSql(req.user);
     res.status(200).send(SumaGastosProT)
 }
 
 
 const getMayorDeAllGastos = async (req, res, next) => {
-    const mayorOfAll = await Cns.getMayorDeAllGastos();
+    const mayorOfAll = await Cns.getMayorDeAllGastos(req.user);
     res.send(mayorOfAll)
 }
 const getMenorDeAllGastos = async (req, res, next) => {
-    const menorOfAll = await Cns.getMenorDeAllGastos();
+    const menorOfAll = await Cns.getMenorDeAllGastos(req.user);
     res.send(menorOfAll)
 }
 

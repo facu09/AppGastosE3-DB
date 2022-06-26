@@ -105,10 +105,10 @@ const loginUser = async (req, res, next) => {
         //Fin validaciones previas -------------
         
         //Busco en Usuario x Email en orden: 1ero Mongo, y luego backup redundante Heroku.PostgreSQL
-        const { user, porMongo } = await searchUserByEmail(userBody.email);
+        const { user, porMongo, idUsPst } = await searchUserByEmail(userBody.email);
         console.log("Loguin: -> Usuario encontrado: ",   user,  " porMongo = ", porMongo );
         if (user) {
-            console.log("Entro al if (user) ")
+            console.log("Logueando Usuario: --> Usuario Existenteen en MongoDB: ", porMongo)
             // comparao contra password Heroku.PostgreSQL
             const resultC = await bcrypt.compare(userBody.password, user.password)
             // Faltaria 1er servidor de autenticación
@@ -117,7 +117,7 @@ const loginUser = async (req, res, next) => {
                 //Armo token con datos de Mongo 
                 const accessToken = jwt.sign(
                     {
-                        id: user.id,
+                        id: idUsPst,  //Calve tener el PostgreSQL.User.id para las consultas de este usuario
                         fistName: user.firstName,
                         lastName: user.lastName,
                         email: user.email,
@@ -187,7 +187,7 @@ const validLengthPassword = (password) => {
     return  !(password.length < 8) 
 };
 
-//Me fijo si existe en Prisma.Heroku.PostgreSQL
+//Busca el Usuario 1ero en Mongo y luego en PostgreSQL para obtener el user.id para tenerlo para todas las consultas
 const searchUserByEmail = async (email) => {
 try{
     console.log ("Va a ir a buscar a Mongo 1ero")
@@ -197,27 +197,37 @@ try{
     // Si falla deberia ir al Servicio Redundante de Loguin que Heroku ==> armar try cacth
     if (user1) {
         console.log ("Encontró por Mongo");
-        return { user: user1, porMongo: true};
+        
+       
+        // Va buscar el Id de Usuario al PostgreSQL.User.id para tenerlo en todas las consultas.
+        //Busco en Heroku.PostgreSQL
+        const user2 = await User.findByEmail(email);
+        const idUserPostgreSQL = user2.id
+        return { user: user1, porMongo: true, idUsPst: idUserPostgreSQL};
+        
     } else{
         //Si esta caido mongo busco en Herou
         //Busco en Heroku.PostgreSQL
         console.log ("Va a ir a buscar a Heroku 2do")
-        const user2 = await User.findByEmail(email);
-        if (user2) {
+        const userPostg = await User.findByEmail(email);
+        console.log("User.id PostgreSQL: " + userPostg.id)
+        const idUserPostgreSQL2 = userPostg.id
+        if (userPostg) {
             console.log ("Encontró por PostgreSQL");
-            return { user: user2, porMongo: false};
+            return { user: user2, porMongo: false, idUsPst: idUserPostgreSQL2 };
         }
     }
 } catch {
     //Si esta caido mongo busco en Herou
     //Busco en Heroku.PostgreSQL
     console.log("Del catch de searchUserByEmail")
-    const user2 = await User.findByEmail(email);
+    const userPostg2 = await User.findByEmail(email);
+    const idUserPostgreSQL22 = userPostg2.id
     if (user2) {
-        return { user: user2, porMongo: false};
+        return { user: user2, porMongo: false, idUsPst: idUserPostgreSQL22};
     }
 }
-    return {user: null , porMongo: null};
+    return {user: null , porMongo: null, };
 };
 
 
