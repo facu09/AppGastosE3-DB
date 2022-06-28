@@ -1,11 +1,70 @@
 {
 	"info": {
-		"_postman_id": "1942e157-a73d-450a-8070-4b35438ff758",
-		"name": "E2AppGastosConDB Local Heroku",
+		"_postman_id": "bdaadf73-108b-4bf9-929d-8042afc41382",
+		"name": "E3AppGastosConDB a Heroku",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17226216"
 	},
 	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Roberto 8 \",\r\n    \"lastName\": \"García\",\r\n    \"email\": \"roberto8@gmail.com\",\r\n    \"password\": \"pass12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"roberto2@gmail.com\",\r\n    \"password\": \"pass12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "Users",
 			"item": [
@@ -70,7 +129,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/users/search?email=roberto4@gmail.com",
+							"raw": "{{url}}/users/search?email=roberto1@gmail.com",
 							"host": [
 								"{{url}}"
 							],
@@ -81,7 +140,7 @@
 							"query": [
 								{
 									"key": "email",
-									"value": "roberto4@gmail.com"
+									"value": "roberto1@gmail.com"
 								}
 							]
 						}
@@ -95,7 +154,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Roberto 18 García\",\r\n    \"password\": \"pass12345\",\r\n    \"role\": \"USER\"\r\n}",
+							"raw": "{\r\n    \"firstName\": \"Facundo Juan M.\",\r\n    \"lastName\": \"Cigliuti\",\r\n    \"password\": \"pass12345\",\r\n    \"role\": \"ADMIN\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -103,14 +162,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/users/email/roberto18@gmail.com",
+							"raw": "{{url}}/users/email/fcigliuti@gmail.com",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"users",
 								"email",
-								"roberto18@gmail.com"
+								"fcigliuti@gmail.com"
 							]
 						}
 					},
@@ -122,14 +181,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/users/email/roberto11@gmail.com",
+							"raw": "{{url}}/users/email/roberto7@gmail.com",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"users",
 								"email",
-								"roberto11@gmail.com"
+								"roberto7@gmail.com"
 							]
 						}
 					},
@@ -220,10 +279,16 @@
 					"name": "New Gasto",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZmlzdE5hbWUiOiJGYWN1bmRvIEp1YW4gTS4iLCJsYXN0TmFtZSI6IkNpZ2xpdXRpIiwiZW1haWwiOiJmY2lnbGl1dGlAZ21haWwuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNjU2NDUwMzc2LCJleHAiOjE2NTY0NTYzNzZ9.S1zj_ZzuQ42je2vs3stg03Tw6AeK5guoDWgw1Q-eb70",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nomGasto\": \"Dif Cable e Internet\",\r\n    \"importe\": 10,\r\n    \"fechaGasto\": \"05/13/2022\",\r\n    \"idTipoGasto\": 1,\r\n    \"UserId\": 1\r\n}",
+							"raw": "{\r\n    \"nomGasto\": \"Dif Cable e Internet\",\r\n    \"importe\": 10,\r\n    \"fechaGasto\": \"05/13/2022\",\r\n    \"idTipoGasto\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -251,7 +316,13 @@
 					"name": "All Gastos or By Email",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZmlzdE5hbWUiOiJGYWN1bmRvIEp1YW4gTS4iLCJsYXN0TmFtZSI6IkNpZ2xpdXRpIiwiZW1haWwiOiJmY2lnbGl1dGlAZ21haWwuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNjU2NDUzNDI5LCJleHAiOjE2NTY0NTk0Mjl9.KzIHyTTUA4Jz02plJyT5KptMRFXhMug6zdt1wQ81o5k",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/allGastos?email=roberto4@gmail.com",
 							"host": [
@@ -275,7 +346,13 @@
 					"name": "All Gastos Order Asc by Importe",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZmlzdE5hbWUiOiJSb2JlcnRvIERvcyIsImxhc3ROYW1lIjoiR2FyY8OtYSIsImVtYWlsIjoicm9iZXJ0bzJAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTYyMTc0NjMsImV4cCI6MTY1NjIyMzQ2M30.4GIFLiFE2MdMdVMuJSNBPho4_NJ-Q9vTMZOnc5U0a9c",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/allGastosOrderAscImporte",
 							"host": [
@@ -293,7 +370,13 @@
 					"name": "All Gastos Order Asc by Fecha",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZmlzdE5hbWUiOiJSb2JlcnRvIERvcyIsImxhc3ROYW1lIjoiR2FyY8OtYSIsImVtYWlsIjoicm9iZXJ0bzJAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTYyMjA5NzEsImV4cCI6MTY1NjIyNjk3MX0.BUwZlK2iT1srMcK-nh45B017fGNKLUAfAHcHUWJFKwg",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/allGastosOrderAscFecha",
 							"host": [
@@ -311,7 +394,13 @@
 					"name": "Promedio de All Gastos",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZmlzdE5hbWUiOiJGYWN1bmRvIEp1YW4gTS4iLCJsYXN0TmFtZSI6IkNpZ2xpdXRpIiwiZW1haWwiOiJmY2lnbGl1dGlAZ21haWwuY29tIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNjU2MjIyMjk3LCJleHAiOjE2NTYyMjgyOTd9.peyGjk0N3HaOfFSFgjMMdFDyws9Dhc5aFvyFpmqHIZY",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/promedioDeAllGastos",
 							"host": [
@@ -329,7 +418,13 @@
 					"name": "Suma de All Gastos",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZmlzdE5hbWUiOiJSb2JlcnRvIERvcyIsImxhc3ROYW1lIjoiR2FyY8OtYSIsImVtYWlsIjoicm9iZXJ0bzJAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTY0NTM5MjYsImV4cCI6MTY1NjQ1OTkyNn0.6ub1-ySXPA2RPGFBzaJKPdPYV8fXjEIx0JCf8jtBeiU",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/sumaDeAllGastos",
 							"host": [
@@ -347,7 +442,13 @@
 					"name": "Suma de All Gastos  Por User",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZmlzdE5hbWUiOiJSb2JlcnRvIERvcyIsImxhc3ROYW1lIjoiR2FyY8OtYSIsImVtYWlsIjoicm9iZXJ0bzJAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTYyMjA5NzEsImV4cCI6MTY1NjIyNjk3MX0.BUwZlK2iT1srMcK-nh45B017fGNKLUAfAHcHUWJFKwg",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/sumaDeGastosPorUsuario",
 							"host": [
@@ -365,7 +466,13 @@
 					"name": "Suma de All Gastos  Por TipoGasto Prisma",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZmlzdE5hbWUiOiJSb2JlcnRvIERvcyIsImxhc3ROYW1lIjoiR2FyY8OtYSIsImVtYWlsIjoicm9iZXJ0bzJAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTYyMjA5NzEsImV4cCI6MTY1NjIyNjk3MX0.BUwZlK2iT1srMcK-nh45B017fGNKLUAfAHcHUWJFKwg",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/sumaDeGastosPorTipoGasto",
 							"host": [
@@ -383,7 +490,13 @@
 					"name": "Suma de All Gastos  Por TipoGasto Sql",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZmlzdE5hbWUiOiJSb2JlcnRvIERvcyIsImxhc3ROYW1lIjoiR2FyY8OtYSIsImVtYWlsIjoicm9iZXJ0bzJAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTYyMjA5NzEsImV4cCI6MTY1NjIyNjk3MX0.BUwZlK2iT1srMcK-nh45B017fGNKLUAfAHcHUWJFKwg",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/sumaDeGastosPorTipoGasto",
 							"host": [
@@ -401,7 +514,13 @@
 					"name": "Mayor de All Gasto",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZmlzdE5hbWUiOiJSb2JlcnRvIERvcyIsImxhc3ROYW1lIjoiR2FyY8OtYSIsImVtYWlsIjoicm9iZXJ0bzJAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTYyMjA5NzEsImV4cCI6MTY1NjIyNjk3MX0.BUwZlK2iT1srMcK-nh45B017fGNKLUAfAHcHUWJFKwg",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/mayorDeAllGastos",
 							"host": [
@@ -419,7 +538,13 @@
 					"name": "Menor de All Gasto",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZmlzdE5hbWUiOiJSb2JlcnRvIERvcyIsImxhc3ROYW1lIjoiR2FyY8OtYSIsImVtYWlsIjoicm9iZXJ0bzJAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTYyMjA5NzEsImV4cCI6MTY1NjIyNjk3MX0.BUwZlK2iT1srMcK-nh45B017fGNKLUAfAHcHUWJFKwg",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/consultas/menorDeAllGastos",
 							"host": [
@@ -459,7 +584,7 @@
 	"variable": [
 		{
 			"key": "url",
-			"value": "https://app-gastos-e2-db.herokuapp.com/api",
+			"value": "https://app-gastos-e3-db.herokuapp.com/api",
 			"type": "string"
 		}
 	]
