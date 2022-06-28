@@ -10,7 +10,7 @@ const { connectionString } = require("pg/lib/defaults");
 //  publicos
 //Armo el CRUD de Registro y Login de Usuarios 
 
-//Es cuando el usuario se da de Alta
+//Da de  Alta el usuario en MongoDB + PostgreSQL, hashea el Password
 const registerUser = async (req, res, next) => {
     console.log("ARRANCA DE NUEVO ===========> ")
     // asum not insert into DB PostgreSQL and MongoDB
@@ -105,7 +105,7 @@ const loginUser = async (req, res, next) => {
         //Fin validaciones previas -------------
         
         //Busco en Usuario x Email en orden: 1ero Mongo, y luego backup redundante Heroku.PostgreSQL
-        const { user, porMongo, idUsPst } = await searchUserByEmail(userBody.email);
+        const { user, porMongo, IdUserPostgre } = await searchUserByEmail(userBody.email);
         console.log("Loguin: -> Usuario encontrado: ",   user,  " porMongo = ", porMongo );
         if (user) {
             console.log("Logueando Usuario: --> Usuario Existenteen en MongoDB: ", porMongo)
@@ -117,7 +117,7 @@ const loginUser = async (req, res, next) => {
                 //Armo token con datos de Mongo 
                 const accessToken = jwt.sign(
                     {
-                        id: idUsPst,  //Calve tener el PostgreSQL.User.id para las consultas de este usuario
+                        id: IdUserPostgre,  //Calve tener el PostgreSQL.User.id para las consultas de este usuario
                         fistName: user.firstName,
                         lastName: user.lastName,
                         email: user.email,
@@ -129,7 +129,7 @@ const loginUser = async (req, res, next) => {
                 res.json({ accessToken: accessToken });
                 return;
             } else if (resultC && !porMongo ) {
-                //Armo token con datos de Mongo
+                //Armo token con datos de PostreSQL
                 const accessToken = jwt.sign(
                     {
                         id: user.id,
@@ -203,7 +203,7 @@ try{
         //Busco en Heroku.PostgreSQL
         const user2 = await User.findByEmail(email);
         const idUserPostgreSQL = user2.id
-        return { user: user1, porMongo: true, idUsPst: idUserPostgreSQL};
+        return { user: user1, porMongo: true, IdUserPostgre: idUserPostgreSQL};
         
     } else{
         //Si esta caido mongo busco en Herou
@@ -214,7 +214,7 @@ try{
         const idUserPostgreSQL2 = userPostg.id
         if (userPostg) {
             console.log ("Encontró por PostgreSQL");
-            return { user: user2, porMongo: false, idUsPst: idUserPostgreSQL2 };
+            return { user: user2, porMongo: false, IdUserPostgre: idUserPostgreSQL2 };
         }
     }
 } catch {
@@ -224,7 +224,7 @@ try{
     const userPostg2 = await User.findByEmail(email);
     const idUserPostgreSQL22 = userPostg2.id
     if (user2) {
-        return { user: user2, porMongo: false, idUsPst: idUserPostgreSQL22};
+        return { user: user2, porMongo: false, IdUserPostgre: idUserPostgreSQL22};
     }
 }
     return {user: null , porMongo: null, };

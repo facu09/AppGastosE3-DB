@@ -25,6 +25,7 @@ const authorizationForAdmin = async ( req, res, next) => {
         }
         // si es ADMIN
         // agrego al req. un objeto user para que quede y pueda ser usado en las consultas y controllers y o models para filtrar en la consulta o lo que sea
+        //   VC: en token ya esta el idUser de PostgreSQL que es el que necesito para las consultas y alta de gastos
         req.user = {
             userId: data.id,
             email: data.email,
@@ -61,8 +62,8 @@ const authorizationForAllUser = async ( req, res, next) => {
             res.status(403).json({ message: "Not authorized: must be 'ADMIN' or 'USER'" });
             return;
         }
-        // si es ADMIN
-        // agrego al req. un objeto user para que quede y pueda filtrar en la consulta
+        // si es ADMIN o USER
+        //     -> agrego al req. un objeto user para que quede y pueda filtrar en la consulta y demas contollers como gastos
         req.user = {
             userId: data.id,
             email: data.email,

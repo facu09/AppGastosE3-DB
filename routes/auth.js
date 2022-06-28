@@ -2,11 +2,13 @@ const express = require("express");
 const AuthController = require("../controllers/auth");
 const router = express.Router();
 
-//  /api/auth
+//  /api/auth  --> registra usuario en MongoDB + Posgre (hashea password)
 router.post("/register", AuthController.registerUser);
-//  /api/auth
+
+//  /api/auth --> verifica password hasheada + Devuevle Token
 router.post("/login", AuthController.loginUser);
-//  /api/auth
+
+//  /api/auth --> tira logout
 router.post("/logout", AuthController.logoutUser);
 
 module.exports = router;

@@ -4,62 +4,89 @@ const TipoGasto = require("../models/tipoGasto");
 const User = require("../models/user");
 
 const createGasto = async (req, res, next) => {
-    const nomGasto = req.body.nomGasto;
-    const importe = req.body.importe;
-    const fechaGasto = req.body.fechaGasto;
-    const idTipoGasto = req.body.idTipoGasto;
-    const idUser = req.body.UserId;
+//Si es rol ADMIN se espera un Body:
+// {
+//     "nomGasto": "Dif Cable e Internet",
+//     "importe": 10,
+//     "fechaGasto": "05/13/2022",
+//     "idTipoGasto": 1,
+//     "UserId": 1 o cualquiera valido
+// }
+//Si es rol USER se espera un Body:
+// {
+//     "nomGasto": "Dif Cable e Internet",
+//     "importe": 10,
+//     "fechaGasto": "05/13/2022",
+//     "idTipoGasto": 1,
+// }
 
-    if (!nomGastoIsValid(nomGasto)) {
-        res.statusCode = 400;
-        res.send("nomGasto can not be empty.");
-        return;
-    }
-    if (!importeIsValid(importe)) {
-        res.statusCode = 400;
-        res.send("The importe can not be empty.");
-        return;
-    }
-    if (await IdTipoGastoNotValid(idTipoGasto)) {
-        res.statusCode = 400;
-        res.send("The Id. Tipo Gasto is not valid.");
-        return;
-    }
-    if (! await IdUserIsValid(idUser)) {
-        res.statusCode = 400;
-        res.send("The userId is not valid.");
-        return;
-    }
-    if (await Gasto.GastoAlreadyExist( nomGasto,
-                importe, fechaGasto, idTipoGasto, idUser)) {
-        res.statusCode = 402;
-        res.send("Este Gasto ya fue cargado.");
-        return;
-    }
-    //otras validaciones
-    // valida que idTipoGasto exista
-    //..
+    // const nomGasto = req.body.nomGasto;
+    // const importe = req.body.importe;
+    // const fechaGasto = req.body.fechaGasto;
+    // const idTipoGasto = req.body.idTipoGasto;
+    // const idUser = req.body.UserId;
 
-   // falta otras validarciones
+    // Definiciones
+    let IdUsuarioGasto = 0;  // es el IdUsuario que se le imputará el gastos
+    const gastoBody = req.body;
+    //Validaciones comunes a ADMIN y USER role
+    const msgValidComunes = await MessageNotPassValidationCommonNewGasto(gastoBody)
+    console.log ("mensaje devuelvo x validation de Gastos comun all roles:",  msgValidComunes)
+    if (msgValidComunes) {
+        res.status(400).json({ message: msgValidComunes})
+        return
+    }
+
+    console.log("Entrando al CreateGasto, ya paso validaciones, por aca va el req.body", gastoBody, "y el req.user: ", req.user )
+    //Validaciones si es ADMIN role: 
+    if (req.user.role === "ADMIN") {
+        //-> que el usuairo exista y que fuera mandado
+        if (! await IdUserIsValid(gastoBody.UserId)) {
+            res.status(400).json({ message: "The userId is not valid."})
+            return;
+        }
+        IdUsuarioGasto = req.body.UserId //para que meterlo en el Alta: lo tomo del body
+    }
+     //Validaciones si es USER role: 
+    if (req.user.role === "USER") {
+        // si hay UserId en el body --> lo rechazo
+        if (gastoBody.UserId && gastoBody.UserId !== req.user.userId) {
+            res.status(400).json({ message: "'USER' role can't insert Gastos to other User, only ADMIN role can do it. 'UserId' musn't be given in this case."})
+            return;
+        }
+        IdUsuarioGasto = req.user.userId  //Previamente cargado durante middleware de Autorizacion, se cargo el objeto req.user  con el userId del token (el idUser de PostgreSQL)
+    }
+    // Si llego acá viene bien --> a punto de hacer el insert del gasto
+    // Validación final: veo si el gasto ya fue cardo y esta duplicado (erro comun) 
+    if (await Gasto.GastoAlreadyExist( gastoBody.nomGasto,
+        gastoBody.importe, gastoBody.fechaGasto, gastoBody.idTipoGasto, IdUsuarioGasto)) {
+        res.status(402).json({ message: "Este Gasto ya fue cargado. No puedo haber 2 gastos totalmente iguales."})
+        return;
+    }
+    //Fin Validaciones Previas ---------------------------------------
+
+    //Doy de Alta Gasto -----------------------------
     // Creo la entidad
     let newGasto = new Gasto(
         req.body.nomGasto,
         req.body.importe,
         req.body.fechaGasto, 
         req.body.idTipoGasto,
-        req.body.UserId,
+        IdUsuarioGasto, //el que corresponde segun autorizacion y o token
     );
-    console.log ("despues de new en cotroller ", newGasto)
+    console.log ("despues de new objeto Gasto ", newGasto)
     try {
         // Salvando la nueva entidad
         newGasto2 = await newGasto.save();
-        res.statusCode = 200;
-        res.send(newGasto2);
+        res.status(200).json({ "Alta Gasto Exitosa" : newGasto2 })
+
       } catch (err) {
         res.statusCode = 500;
         res.send(err);
       }
+
 };
+
 
 const getAllGastos = async (req, res, next) => {
     const gastos = await Gasto.getAllGastos();
@@ -68,6 +95,20 @@ const getAllGastos = async (req, res, next) => {
 }
 
 // Validaciones ----------------------------------------
+
+const MessageNotPassValidationCommonNewGasto = async (gastoBody) => {
+    if (!nomGastoIsValid(gastoBody.nomGasto)) {
+        return "Nombre Gasto can't be empty."
+    }
+    if (!importeIsValid(gastoBody.importe)) {
+        return "The importe can not be empty.";
+    }
+    if (await IdTipoGastoNotValid(gastoBody.idTipoGasto)) {
+        return "The Id. Tipo Gasto is not valid.";
+    }
+}
+
+
 const idTipoGastoExists = async (id) => {
     const tipoGastoById = await TipoGasto.findById(id);
     console.log ("Encontrado  tipo gasto", tipoGastoById)
